@@ -1,3 +1,3 @@
-local functions = require("lua.themepicker.functions")
+local window = require("lua.themepicker.window")
 
-functions.window()
+window.window()
