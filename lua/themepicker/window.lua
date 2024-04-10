@@ -3,7 +3,7 @@ local themes = require("lua.themepicker.themes")
 
 local M = {}
 
-function M.window()
+function M.renderWindow()
     -- Create a new buffer
     local buffer = vim.api.nvim_create_buf(false, true)
 
@@ -14,12 +14,13 @@ function M.window()
 
     vim.api.nvim_buf_set_name(buffer, "Themepicker")
     vim.api.nvim_set_option_value("filetype", "Themepicker", { buf = buffer })
+    vim.api.nvim_set_option_value("nomodify", true, { buf = buffer })
 
-    local themes = themes.getThemes()
+    local colorSchemes = themes.getThemes()
 
     -- Set some text in the buffer
-    for i, theme in ipairs(themes) do
-        vim.api.nvim_buf_set_lines(buffer, i, -1, false, {theme})
+    for i, colorScheme in ipairs(colorSchemes) do
+        vim.api.nvim_buf_set_lines(buffer, i, -1, false, {colorScheme})
     end
 
     local nvimWidth = vim.o.columns
@@ -43,6 +44,10 @@ function M.window()
 
     -- Open the floating window
     local win = vim.api.nvim_open_win(buffer, true, window_opts)
+end
+
+function M.setup(config)
+    M.config = config
 end
 
 return M

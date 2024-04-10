@@ -5,7 +5,6 @@ function M.getBufferByName(name)
     for _, buffer in ipairs(buffers) do
         local bufferPath = vim.api.nvim_buf_get_name(buffer)
         local bufferName = bufferPath:match("([^/]+)$")
-
         if bufferName == name then return buffer end
     end
     return nil
@@ -21,6 +20,10 @@ function M.getWinByBuffer(buffer)
     end
 
     return nil
+end
+
+function M.mergeConfig(baseConfig, newConfig)
+    return vim.tbl_deep_extend("force", baseConfig, newConfig or {})
 end
 
 return M
