@@ -13,7 +13,7 @@ end
 function M.getWinByBuffer(buffer)
     local windows = vim.api.nvim_list_wins()
     for _, win in ipairs(windows) do
-        local winBuf = vim.api.nvim_win_get_buffer(win)
+        local winBuf = vim.api.nvim_win_get_buf(win)
         if winBuf == buffer then
             return win
         end
