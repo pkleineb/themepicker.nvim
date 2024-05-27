@@ -1,11 +1,22 @@
 local M = {}
 
-function M.getThemes()
+function M.getColorSchemePaths()
     local dataPath = vim.fn.stdpath("data")
-    local colorSchemePaths = vim.fn.glob(dataPath .. "**/colors/*.lua") .. "\n" .. vim.fn.glob(dataPath .. "**/colors/*.vim")
+    local colorSchemePathString = vim.fn.glob(dataPath .. "**/colors/*.lua") .. "\n" .. vim.fn.glob(dataPath .. "**/colors/*.vim")
+
+    local colorSchemePaths = {}
+    for path in colorSchemePathString:gmatch("([^\n]*)\n?") do
+        table.insert(colorSchemePaths, path)
+    end
+
+    return colorSchemePaths
+end
+
+function M.getThemes()
+    local colorSchemePaths = M.getColorSchemePaths()
 
     local themes = {}
-    for path in colorSchemePaths:gmatch("([^\n]*)\n?") do
+    for _, path in ipairs(colorSchemePaths) do
         if path == "" then goto continue end
         local colorSchemeFile = path:match("([^/]+)$")
         local colorScheme = colorSchemeFile:match("(.+)%.[^.]+$")
