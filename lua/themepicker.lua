@@ -1,19 +1,15 @@
 local utils = require("lua.themepicker.utils")
 local defaults = require("lua.themepicker.defaults")
-
-local window = require("lua.themepicker.window")
-local keybinds = require("lua.themepicker.keybinds")
-local loader = require("lua.themepicker.loader")
+local config = require("lua.themepicker.config")
 
 local commands = require("lua.themepicker.commands")
 
 local M = {}
 
-function M.setup(config)
-    local userConfig = utils.mergeConfig(defaults, config)
+function M.setup(opts)
+    local userConfig = utils.mergeConfig(defaults, opts)
 
-    window.setup(userConfig.window)
-    keybinds.setup(userConfig.keys)
+    config.setup(userConfig)
 
     commands.setup()
 end
