@@ -1,6 +1,4 @@
 return {
-    test = true,
-
     keys = {
         {
             mode = "n",
@@ -10,6 +8,19 @@ return {
                 silent = true,
                 noremap = true,
             }
+        },
+        {
+            mode = "n",
+            keys = "q",
+            command = "<cmd>lua require'lua.themepicker.window'.closeWindow()<CR>",
+            opts = {
+                silent = true,
+                noremap = true,
+            }
         }
     },
+
+    themes = {
+        theme_dir = vim.fn.stdpath("data")
+    }
 }

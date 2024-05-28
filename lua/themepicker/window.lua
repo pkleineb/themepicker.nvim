@@ -50,8 +50,12 @@ function M.renderWindow()
     vim.api.nvim_set_option_value("modifiable", false, { buf = buffer })
 end
 
-function M.setup(config)
-    M.config = config
+function M.closeWindow()
+    local pickerBuf = utils.getBufferByName("Themepicker")
+
+    local win = utils.getWinByBuffer(pickerBuf)
+
+    vim.api.nvim_win_close(win, true)
 end
 
 return M
