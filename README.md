@@ -3,7 +3,7 @@ A super basic themepicker plugin
 
 ## Installation
 ### With lazy.nvim
-```
+```lua
 return {
     "pkleineb/themepicker.nvim",
     
@@ -16,7 +16,7 @@ return {
 ### Configuration
 On calling setup you can pass in a lua table of options.
 The defaults are listed below:
-```
+```lua
 {
     keys = {
         {
