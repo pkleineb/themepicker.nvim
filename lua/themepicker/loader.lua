@@ -38,17 +38,30 @@ function M.getColorSchemeUnderCursor()
 end
 
 function M.loadColorScheme(modulePath, moduleName, moduleType)
-    --vim.opt.rtp:append(modulePath)
+    local pattern = "(/[^/]*)(/[^/]*)$"
+    local pluginPath = modulePath:gsub(pattern, "")
+    vim.opt.rtp:append(pluginPath)
 
-    if moduleType == "lua" then
-        local pattern = "(/[^/]*)(/[^/]*)$"
-        local luaPath = modulePath:gsub(pattern, "")
-        vim.opt.rtp:append(luaPath)
-    end
+    local beforeLoadPackages = utils.parseStringTable(vim.inspect(package.loaded, { depth = 1 }))
 
     vim.cmd("source " .. modulePath .. moduleName .. "." .. moduleType)
-
     vim.cmd("colorscheme " .. moduleName)
+
+    local afterLoadPackages = utils.parseStringTable(vim.inspect(package.loaded, { depth = 1 }))
+
+    local newLoadedPlugins = utils.diffTableKeys(beforeLoadPackages, afterLoadPackages)
+
+    if vim.g.activeTheme ~= nil then
+        vim.opt.rtp:remove(vim.g.activeTheme.pluginPath)
+        for _, plugin in ipairs(vim.g.activeTheme.loadedPlugins) do
+            package.loaded[plugin] = nil
+        end
+    end
+
+    vim.g.activeTheme = {
+        pluginPath = pluginPath,
+        loadedPlugins = newLoadedPlugins,
+    }
 end
 
 function M.setup(config)
