@@ -1,7 +1,9 @@
+local config = require("lua.themepicker.config")
+
 local M = {}
 
 function M.getColorSchemePaths()
-    local dataPath = vim.fn.stdpath("data")
+    local dataPath = config.config.themes.theme_dir
     local colorSchemePathString = vim.fn.glob(dataPath .. "**/colors/*.lua") .. "\n" .. vim.fn.glob(dataPath .. "**/colors/*.vim")
 
     local colorSchemePaths = {}
