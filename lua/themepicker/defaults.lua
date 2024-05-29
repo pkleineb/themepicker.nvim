@@ -22,5 +22,13 @@ return {
 
     themes = {
         theme_dir = vim.fn.stdpath("data")
-    }
+    },
+
+    window = {
+        style = "minimal",
+        relative = "editor",
+        border = "rounded",
+        width = 0.8,
+        height = 0.8,
+    },
 }
