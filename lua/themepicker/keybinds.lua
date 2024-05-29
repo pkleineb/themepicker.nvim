@@ -4,7 +4,7 @@ local config = require("lua.themepicker.config")
 local M = {}
 
 function M.bindKeys()
-    local themepickerBuffer = utils.getBufferByName("Themepicker")
+    local themepickerBuffer = utils.getBufferByName("ThemepickerSearchbar")
 
     if not themepickerBuffer then
         error("Couldn't find the Themepicker buffer")
