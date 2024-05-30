@@ -2,10 +2,13 @@ local utils = require("lua.themepicker.utils")
 local config = require("lua.themepicker.config")
 local themes = require("lua.themepicker.themes")
 local keybinds = require("lua.themepicker.keybinds")
+local autocmds = require("lua.themepicker.autocommands")
 
 local M = {}
 
 function M.renderWindow()
+    M.setColorSchemes()
+
     local pickerBuffer = M.createBuffer("Themepicker")
     local mainOpts = {
         filetype = "Themepicker",
@@ -32,10 +35,9 @@ function M.renderWindow()
 
     keybinds.bindKeys()
 
-    vim.cmd("startinsert")
+    M.setAutoCommands()
 
-    local nCharacters = #vim.api.nvim_buf_get_lines(searchBuffer, 0, -1, false)[1]
-    vim.api.nvim_win_set_cursor(0, {1, nCharacters})
+    vim.cmd("startinsert")
 end
 
 function M.createBuffer(name)
@@ -58,13 +60,13 @@ function M.configureBuffer(buffer, opts)
 end
 
 function M.addColorThemes(buffer)
-    local colorSchemes = themes.getThemes()
-    local bufferLines = vim.api.nvim_buf_get_lines(buffer, 0, -1, false)
+    M.setColorSchemes()
 
-    for i, colorScheme in ipairs(colorSchemes) do
-        local lineIndex = #bufferLines + i - 1
-        vim.api.nvim_buf_set_lines(buffer, lineIndex, lineIndex, false, {colorScheme})
-    end
+    vim.api.nvim_buf_set_lines(buffer, 0, #M.colorSchemes, false, M.colorSchemes)
+end
+
+function M.setColorSchemes()
+    M.colorSchemes = themes.getThemes()
 end
 
 function M.createUI(buffers)
@@ -122,9 +124,8 @@ end
 function M.styleSearchBar()
     local searchBuffer = utils.getBufferByName("ThemepickerSearchbar")
     local decorator = " " .. config.config.window.searchbar.search_decorator .. " "
-    local nLines = #vim.api.nvim_buf_get_lines(searchBuffer, 0, -1, false)
 
-    vim.api.nvim_buf_set_lines(searchBuffer, nLines - 1, nLines - 1, true, {decorator})
+    vim.api.nvim_buf_set_lines(searchBuffer, 0, -1, false, {decorator})
 end
 
 function M.closeWindow()
@@ -136,7 +137,104 @@ function M.closeWindow()
 
     vim.api.nvim_win_close(pickerWindow, true)
     vim.api.nvim_win_close(searchWindow, true)
-    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, true, true), "n", false)
+    vim.api.nvim_clear_autocmds({ group = vim.api.nvim_create_augroup("Themepicker", { clear = false }) })
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", false)
+end
+
+function M.handleInsert()
+    local searchBuffer = utils.getBufferByName("ThemepickerSearchbar")
+    local searchWindow = utils.getWinByBuffer(searchBuffer)
+
+    if vim.api.nvim_win_get_cursor(searchWindow)[2] > 4 then return end
+
+    -- have to delay this since insert mode will place at the position where insert was pressed and we need to set the pos later
+    vim.defer_fn(function() 
+            vim.api.nvim_win_set_cursor(searchWindow, {1, 4})
+        end,
+        1
+    )
+end
+
+function M.handleInput()
+    local searchBuffer = utils.getBufferByName("ThemepickerSearchbar")
+
+    if not searchBuffer then
+        -- instead of returning might need to unbind
+        return
+    end
+
+    local searchContent = vim.api.nvim_buf_get_lines(searchBuffer, 0, -1, false)
+
+    if #searchContent > -1 then
+        vim.api.nvim_buf_set_lines(searchBuffer, 0, -1, true, {searchContent[1]})
+    end
+
+    if #searchContent[1] < 4 then
+        M.styleSearchBar()
+        local nCharacters = #vim.api.nvim_buf_get_lines(searchBuffer, 0, -1, false)[1]
+        vim.api.nvim_win_set_cursor(0, {1, nCharacters})
+    end
+
+    M.searchForTheme(searchContent[1])
+end
+
+function M.searchForTheme(searchContent)
+    local pickerBuffer = utils.getBufferByName("Themepicker")
+    local formattedSearch = searchContent:sub(4)
+
+    local matches = {}
+    for _, theme in ipairs(M.colorSchemes) do
+        if M.fuzzyMatch(formattedSearch, theme) then
+            table.insert(matches, theme)
+        end
+    end
+
+    vim.api.nvim_buf_set_lines(pickerBuffer, 0, #vim.api.nvim_buf_get_lines(pickerBuffer, 0, -1, false), true, matches)
+end
+
+function M.fuzzyMatch(query, str)
+    local query_len = #query
+    local str_len = #str
+    local query_index = 1
+    local str_index = 1
+
+    while query_index <= query_len and str_index <= str_len do
+        if query:sub(query_index, query_index):lower() == str:sub(str_index, str_index):lower() then
+            query_index = query_index + 1
+        end
+        str_index = str_index + 1
+    end
+
+    return query_index > query_len
+end
+
+function M.setAutoCommands()
+    local windowAutocommands = {
+        {
+            event = "TextChangedI",
+            config = {
+                buffer = utils.getBufferByName("ThemepickerSearchbar"),
+                callback = M.handleInput,
+            },
+        },
+        {
+            event = "TextChanged",
+            config = {
+                buffer = utils.getBufferByName("ThemepickerSearchbar"),
+                callback = M.handleInput,
+            },
+        },
+        {
+            event = "InsertEnter",
+            config = {
+                buffer = utils.getBufferByName("ThemepickerSearchbar"),
+                callback = M.handleInsert,
+            }
+        },
+    }
+
+    autocmds.autoCommands = vim.tbl_deep_extend("force", autocmds.autoCommands, windowAutocommands)
+    autocmds.setAutoCommands()
 end
 
 return M
