@@ -255,6 +255,22 @@ end
 
 function M.setHighlight(line)
     local pickerBuffer = utils.getBufferByName("Themepicker")
+
+    local file = io.open("test", "w")
+    if file then
+        file:write(#vim.api.nvim_buf_get_lines(pickerBuffer, 0, -1, false) .. "\n")
+        file:write(vim.inspect(vim.api.nvim_buf_get_lines(pickerBuffer, 0, -1, false)))
+        file:close()
+    end
+
+    if line >= #vim.api.nvim_buf_get_lines(pickerBuffer, 0, -1, false) then
+        line = 0
+    end
+
+    if line < 0 then
+        line = #vim.api.nvim_buf_get_lines(pickerBuffer, 0, -1, false) - 1
+    end
+
     local namespace = _G.Themepicker.namespace
 
     vim.api.nvim_buf_clear_namespace(pickerBuffer, namespace, 0, -1)
