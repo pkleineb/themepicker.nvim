@@ -17,6 +17,8 @@ function M.renderWindow()
     M.configureBuffer(pickerBuffer, mainOpts)
     M.addColorThemes(pickerBuffer)
 
+    M.initHighlight()
+
     local searchBuffer = M.createBuffer("ThemepickerSearchbar")
     local searchOpts = {}
     M.configureBuffer(searchBuffer, searchOpts)
@@ -38,6 +40,13 @@ function M.renderWindow()
     M.setAutoCommands()
 
     vim.cmd("startinsert")
+
+    -- stupid again just need to wait a lil to set highlight, since that can only be done after window is rendered ig
+    vim.defer_fn(function()
+            M.setHighlight(0)
+        end,
+        5
+    )
 end
 
 function M.createBuffer(name)
@@ -95,7 +104,7 @@ function M.createUI(buffers)
         height = totalHeight - searchOpts.height,
         col = totalWindowX,
         row = totalWindowY + searchOpts.height + config.config.window.searchbar.padding + 2,
-        focusable = false,
+        --focusable = false,
     }
 
     local pickerWindow = M.createWindow(pickerBuffer, pickerWindowOpts)
@@ -151,7 +160,7 @@ function M.handleInsert()
     vim.defer_fn(function() 
             vim.api.nvim_win_set_cursor(searchWindow, {1, 4})
         end,
-        1
+        5
     )
 end
 
@@ -235,6 +244,39 @@ function M.setAutoCommands()
 
     autocmds.autoCommands = vim.tbl_deep_extend("force", autocmds.autoCommands, windowAutocommands)
     autocmds.setAutoCommands()
+end
+
+function M.initHighlight()
+    _G.Themepicker.currentHighlightLine = -1
+    _G.Themepicker.namespace = utils.getNamespaceByNameOrCreateNew("Themepicker")
+end
+
+function M.setHighlight(line)
+    local pickerBuffer = utils.getBufferByName("Themepicker")
+    local namespace = _G.Themepicker.namespace
+
+    vim.api.nvim_buf_clear_namespace(pickerBuffer, namespace, 0, -1)
+
+    vim.api.nvim_buf_set_extmark(
+        pickerBuffer,
+        namespace,
+        line,
+        0,
+        {
+            end_line = line + 1,
+            hl_group = "CursorLine",
+        }
+    )
+
+    _G.Themepicker.currentHighlightLine = line
+end
+
+function M.nextSelection()
+    M.setHighlight(_G.Themepicker.currentHighlightLine + 1)
+end
+
+function M.previousSelection()
+    M.setHighlight(_G.Themepicker.currentHighlightLine - 1)
 end
 
 return M
