@@ -1,8 +1,8 @@
-local utils = require("lua.themepicker.utils")
-local config = require("lua.themepicker.config")
-local themes = require("lua.themepicker.themes")
-local keybinds = require("lua.themepicker.keybinds")
-local autocmds = require("lua.themepicker.autocommands")
+local utils = require("themepicker.utils")
+local config = require("themepicker.config")
+local themes = require("themepicker.themes")
+local keybinds = require("themepicker.keybinds")
+local autocmds = require("themepicker.autocommands")
 
 local M = {}
 

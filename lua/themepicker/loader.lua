@@ -1,6 +1,6 @@
-local utils = require("lua.themepicker.utils")
-local themes = require("lua.themepicker.themes")
-local window = require("lua.themepicker.window")
+local utils = require("themepicker.utils")
+local themes = require("themepicker.themes")
+local window = require("themepicker.window")
 
 local M = {}
 
