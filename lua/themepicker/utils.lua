@@ -21,6 +21,17 @@ function M.getWinByBuffer(buffer)
     return nil
 end
 
+function M.getNamespaceByNameOrCreateNew(name)
+    local namespaces = vim.api.nvim_get_namespaces()
+    for _, namespace in ipairs(namespaces) do
+        if namespace.name == name then
+            return namespace
+        end
+    end
+
+    return vim.api.nvim_create_namespace("Themepicker")
+end
+
 function M.mergeConfig(baseConfig, newConfig)
     return vim.tbl_deep_extend("force", baseConfig, newConfig or {})
 end

@@ -7,6 +7,7 @@ local commands = require("lua.themepicker.commands")
 local M = {}
 
 function M.setup(opts)
+    _G.Themepicker = {}
     local userConfig = utils.mergeConfig(defaults, opts)
 
     config.setup(userConfig)
