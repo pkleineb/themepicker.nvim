@@ -8,7 +8,7 @@ return {
     "pkleineb/themepicker.nvim",
     
     config = function
-        require("themepicker.nvim").setup({opts})
+        require("themepicker").setup({opts})
     end
 }
 ```
