@@ -1,4 +1,4 @@
-local window = require("lua.themepicker.window")
+local window = require("themepicker.window")
 
 local M = {}
 

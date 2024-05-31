@@ -1,8 +1,8 @@
-local utils = require("lua.themepicker.utils")
-local defaults = require("lua.themepicker.defaults")
-local config = require("lua.themepicker.config")
+local utils = require("themepicker.utils")
+local defaults = require("themepicker.defaults")
+local config = require("themepicker.config")
 
-local commands = require("lua.themepicker.commands")
+local commands = require("themepicker.commands")
 
 local M = {}
 
