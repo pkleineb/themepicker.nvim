@@ -1,7 +1,10 @@
 return {
     keys = {
         {
-            mode = "n",
+            mode = {
+                "i",
+                "n",
+            },
             keys = "<CR>",
             command = "<cmd>lua require'lua.themepicker.loader'.applyColorScheme()<CR>",
             opts = {

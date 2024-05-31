@@ -4,21 +4,21 @@ local themes = require("lua.themepicker.themes")
 local M = {}
 
 function M.applyColorScheme()
-    local schemePath, schemeName, moduleType = unpack(M.getColorSchemeUnderCursor())
+    local schemePath, schemeName, moduleType = unpack(M.getColorSchemeUnderSelection())
 
     M.loadColorScheme(schemePath, schemeName, moduleType)
 end
 
-function M.getColorSchemeUnderCursor()
+function M.getColorSchemeUnderSelection()
     local buffer = utils.getBufferByName("Themepicker")
     if not buffer then error("Couldnt retrieve the right buffer. Try restarting vim") end
 
     local win = utils.getWinByBuffer(buffer)
     if not win then error("Couldnt retrieve the right window. Try restarting vim") end
 
-    local row, _ = unpack(vim.api.nvim_win_get_cursor(win))
+    local row = _G.Themepicker.currentHighlightLine
 
-    local theme = vim.api.nvim_buf_get_lines(buffer, row - 1, row, false)[1]
+    local theme = vim.api.nvim_buf_get_lines(buffer, 0, -1, false)[row + 1]
     local escapedTheme = theme:gsub("%-", "%%-")
 
     local colorSchemePaths = themes.getColorSchemePaths()
