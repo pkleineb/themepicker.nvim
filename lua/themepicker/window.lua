@@ -185,6 +185,8 @@ function M.handleInput()
     end
 
     M.searchForTheme(searchContent[1])
+
+    M.setHighlight(0)
 end
 
 function M.searchForTheme(searchContent)
