@@ -1,5 +1,5 @@
 # Themepicker.nvim
-A super basic themepicker plugin
+A super basic themepicker plugin that supports lazy loading colorschemes and a bit of customization
 
 ## Installation
 ### With lazy.nvim
@@ -8,7 +8,7 @@ return {
     "pkleineb/themepicker.nvim",
     
     config = function
-        require("themepicker.nvim").setup({opts})
+        require("themepicker").setup({opts})
     end
 }
 ```
@@ -26,7 +26,7 @@ The defaults are listed below:
                 "n",
             },
             keys = "<CR>",
-            command = "<cmd>lua require'lua.themepicker.loader'.applyColorScheme()<CR>",
+            command = "<cmd>lua require'themepicker.loader'.applyColorScheme()<CR>",
             opts = {
                 silent = true,
                 noremap = true,
@@ -36,7 +36,7 @@ The defaults are listed below:
             -- can be table or string of valid vim modes
             mode = "i",
             keys = "<C-c>",
-            command = "<cmd>lua require'lua.themepicker.window'.closeWindow()<CR>",
+            command = "<cmd>lua require'themepicker.window'.closeWindow()<CR>",
             opts = {
                 silent = true,
                 noremap = true,
@@ -46,7 +46,7 @@ The defaults are listed below:
             -- can be table or string of valid vim modes
             mode = "n",
             keys = "<Esc>",
-            command = "<cmd>lua require'lua.themepicker.window'.closeWindow()<CR>",
+            command = "<cmd>lua require'themepicker.window'.closeWindow()<CR>",
             opts = {
                 silent = true,
                 noremap = true,
@@ -59,7 +59,7 @@ The defaults are listed below:
                 "n",
             },
             keys = "<Tab>",
-            command = "<cmd> lua require'lua.themepicker.window'.nextSelection()<CR>",
+            command = "<cmd> lua require'themepicker.window'.nextSelection()<CR>",
             opts = {
                 silent = true,
                 noremap = true,
@@ -72,7 +72,7 @@ The defaults are listed below:
                 "n",
             },
             keys = "<S-Tab>",
-            command = "<cmd> lua require'lua.themepicker.window'.previousSelection()<CR>",
+            command = "<cmd> lua require'themepicker.window'.previousSelection()<CR>",
             opts = {
                 silent = true,
                 noremap = true,
