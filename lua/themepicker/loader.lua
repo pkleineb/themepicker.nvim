@@ -1,5 +1,6 @@
 local utils = require("lua.themepicker.utils")
 local themes = require("lua.themepicker.themes")
+local window = require("lua.themepicker.window")
 
 local M = {}
 
@@ -20,7 +21,6 @@ function M.getColorSchemeUnderSelection()
     if not win then error("Couldnt retrieve the right window. Try restarting vim") end
 
     local row = _G.Themepicker.currentHighlightLine
-
 
     local theme = vim.api.nvim_buf_get_lines(pickerBuffer, 0, -1, false)[row + 1]
     local escapedTheme = theme:gsub("%-", "%%-")
@@ -66,10 +66,8 @@ function M.loadColorScheme(modulePath, moduleName, moduleType)
         pluginPath = pluginPath,
         loadedPlugins = newLoadedPlugins,
     }
-end
 
-function M.setup(config)
-    M.config = config
+    window.setHighlight(_G.Themepicker.currentHighlightLine)
 end
 
 return M

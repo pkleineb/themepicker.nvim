@@ -73,5 +73,24 @@ return {
             padding = 0,
             search_decorator = ">",
         },
+
+        highlights = {
+            light = {
+                guifg = "white",
+                guibg = "#adc4ff",
+                -- can be either lua table or string of args if table seperates args using " "
+                -- all arguments for highlight vim command are allowed
+                additional_args = {
+                }
+            },
+            dark = {
+                guifg = "black",
+                guibg = "#7090ff",
+                -- can be either lua table or string of args if table seperates args using " "
+                -- all arguments for highlight vim command are allowed
+                additional_args = {
+                }
+            }
+        }
     },
 }
