@@ -1,4 +1,4 @@
-local config = require("lua.themepicker.config")
+local config = require("themepicker.config")
 
 local M = {}
 
