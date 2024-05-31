@@ -268,6 +268,8 @@ function M.setHighlight(line)
 
     vim.api.nvim_buf_clear_namespace(pickerBuffer, namespace, 0, -1)
 
+    M.createHighlightGroups()
+
     vim.api.nvim_buf_set_extmark(
         pickerBuffer,
         namespace,
@@ -275,11 +277,19 @@ function M.setHighlight(line)
         0,
         {
             end_line = line + 1,
-            hl_group = "CursorLine",
+            hl_group = (vim.o.background == "dark") and "ThemepickerDark" or "ThemepickerLight",
         }
     )
 
     _G.Themepicker.currentHighlightLine = line
+end
+
+function M.createHighlightGroups()
+    local lightArgs = (type(config.config.window.highlights.light.additional_args) == "string") and config.config.window.highlights.light.additional_args or table.concat(config.config.window.highlights.light.additional_args, " ")
+    local darkArgs = (type(config.config.window.highlights.dark.additional_args) == "string") and config.config.window.highlights.dark.additional_args or table.concat(config.config.window.highlights.dark.additional_args, " ")
+
+    vim.cmd([[highlight ThemepickerLight guifg=]] .. config.config.window.highlights.light.guifg .. [[ guibg=]] .. config.config.window.highlights.light.guibg .. [[ gui=bold]] .. lightArgs)
+    vim.cmd([[highlight ThemepickerDark guifg=]] .. config.config.window.highlights.dark.guifg .. [[ guibg=]] .. config.config.window.highlights.dark.guibg .. [[ gui=bold]] .. darkArgs)
 end
 
 function M.nextSelection()
