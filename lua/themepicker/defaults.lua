@@ -26,7 +26,32 @@ return {
                 silent = true,
                 noremap = true,
             }
-        }
+        },
+        {
+            mode = {
+                "i",
+                "n",
+            },
+            keys = "<Tab>",
+            command = "<cmd> lua require'lua.themepicker.window'.nextSelection()<CR>",
+            opts = {
+                silent = true,
+                noremap = true,
+            }
+        },
+        {
+            mode = {
+                "i",
+                "n",
+            },
+            keys = "<S-Tab>",
+            command = "<cmd> lua require'lua.themepicker.window'.previousSelection()<CR>",
+            opts = {
+                silent = true,
+                noremap = true,
+            }
+        },
+
     },
 
     themes = {
