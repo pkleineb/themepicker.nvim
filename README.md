@@ -1,5 +1,5 @@
 # Themepicker.nvim
-A super basic themepicker plugin
+A super basic themepicker plugin that supports lazy loading colorschemes and a bit of customization
 
 ## Installation
 ### With lazy.nvim
