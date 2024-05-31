@@ -4,7 +4,15 @@ local M = {}
 
 function M.getColorSchemePaths()
     local dataPath = config.config.themes.theme_dir
-    local colorSchemePathString = vim.fn.glob(dataPath .. "**/colors/*.lua") .. "\n" .. vim.fn.glob(dataPath .. "**/colors/*.vim")
+    local colorSchemePathString = ""
+    if type(dataPath) == "table" then
+        colorSchemePathString = ""
+        for _, path in ipairs(dataPath) do
+            colorSchemePathString = colorSchemePathString .. "\n" .. vim.fn.glob(path .. "**/colors/*.lua") .. "\n" .. vim.fn.glob(path .. "**/colors/*.vim")
+        end
+    else
+        colorSchemePathString = vim.fn.glob(dataPath .. "**/colors/*.lua") .. "\n" .. vim.fn.glob(dataPath .. "**/colors/*.vim")
+    end
 
     local colorSchemePaths = {}
     for path in colorSchemePathString:gmatch("([^\n]*)\n?") do
