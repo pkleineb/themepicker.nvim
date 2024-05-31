@@ -4,7 +4,7 @@ local M = {}
 
 M.commands = {
     {
-        name = "Test",
+        name = "ThemepickerRun",
         command = function()
             window.renderWindow()
         end,
