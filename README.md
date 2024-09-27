@@ -26,7 +26,7 @@ The defaults are listed below:
                 "n",
             },
             keys = "<CR>",
-            command = "<cmd>lua require'themepicker.loader'.applyColorScheme()<CR>",
+            command = "<cmd>lua require'themepicker.loader'.apply_color_scheme()<CR>",
             opts = {
                 silent = true,
                 noremap = true,
@@ -36,7 +36,7 @@ The defaults are listed below:
             -- can be table or string of valid vim modes
             mode = "i",
             keys = "<C-c>",
-            command = "<cmd>lua require'themepicker.window'.closeWindow()<CR>",
+            command = "<cmd>lua require'themepicker.window'.close_window()<CR>",
             opts = {
                 silent = true,
                 noremap = true,
@@ -46,7 +46,7 @@ The defaults are listed below:
             -- can be table or string of valid vim modes
             mode = "n",
             keys = "<Esc>",
-            command = "<cmd>lua require'themepicker.window'.closeWindow()<CR>",
+            command = "<cmd>lua require'themepicker.window'.close_window()<CR>",
             opts = {
                 silent = true,
                 noremap = true,
@@ -59,7 +59,7 @@ The defaults are listed below:
                 "n",
             },
             keys = "<Tab>",
-            command = "<cmd> lua require'themepicker.window'.nextSelection()<CR>",
+            command = "<cmd> lua require'themepicker.window'.next_selection()<CR>",
             opts = {
                 silent = true,
                 noremap = true,
@@ -72,7 +72,7 @@ The defaults are listed below:
                 "n",
             },
             keys = "<S-Tab>",
-            command = "<cmd> lua require'themepicker.window'.previousSelection()<CR>",
+            command = "<cmd> lua require'themepicker.window'.previous_selection()<CR>",
             opts = {
                 silent = true,
                 noremap = true,

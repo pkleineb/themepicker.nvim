@@ -6,7 +6,7 @@ M.commands = {
     {
         name = "ThemepickerRun",
         command = function()
-            window.renderWindow()
+            window.render_window()
         end,
         options = {},
     },

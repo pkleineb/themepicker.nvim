@@ -9,9 +9,9 @@ local M = {}
 function M.setup(opts)
     _G.Themepicker = {}
 
-    local userConfig = utils.mergeConfig(defaults, opts)
+    local user_config = utils.merge_config(defaults, opts)
 
-    config.setup(userConfig)
+    config.setup(user_config)
 
     commands.setup()
 end

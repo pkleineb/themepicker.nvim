@@ -1,16 +1,16 @@
 local M = {}
 
-function M.getBufferByName(name)
+function M.get_buffer_by_name(name)
     local buffers = vim.api.nvim_list_bufs()
     for _, buffer in ipairs(buffers) do
-        local bufferPath = vim.api.nvim_buf_get_name(buffer)
-        local bufferName = bufferPath:match("([^/]+)$")
-        if bufferName == name then return buffer end
+        local buffer_path = vim.api.nvim_buf_get_name(buffer)
+        local buffer_name = buffer_path:match("([^/]+)$")
+        if buffer_name == name then return buffer end
     end
     return nil
 end
 
-function M.getWinByBuffer(buffer)
+function M.get_window_by_buffer(buffer)
     local windows = vim.api.nvim_list_wins()
     for _, win in ipairs(windows) do
         local winBuf = vim.api.nvim_win_get_buf(win)
@@ -21,7 +21,7 @@ function M.getWinByBuffer(buffer)
     return nil
 end
 
-function M.getNamespaceByNameOrCreateNew(name)
+function M.get_namespace_by_name_or_new(name)
     local namespaces = vim.api.nvim_get_namespaces()
     for _, namespace in ipairs(namespaces) do
         if namespace.name == name then
@@ -32,32 +32,32 @@ function M.getNamespaceByNameOrCreateNew(name)
     return vim.api.nvim_create_namespace("Themepicker")
 end
 
-function M.mergeConfig(baseConfig, newConfig)
-    return vim.tbl_deep_extend("force", baseConfig, newConfig or {})
+function M.merge_config(base_config, new_config)
+    return vim.tbl_deep_extend("force", base_config, new_config or {})
 end
 
-function M.diffTableKeys(startTable, endTable)
-    local diffTable = {}
+function M.diff_table_keys(start_table, end_table)
+    local diff_table = {}
 
-    for key, _ in pairs(endTable) do
-        if startTable[key] == nil then
-            table.insert(diffTable, key)
+    for key, _ in pairs(end_table) do
+        if start_table[key] == nil then
+            table.insert(diff_table, key)
         end
     end
 
-    return diffTable
+    return diff_table
 end
 
-function M.parseStringTable(str)
+function M.parse_string_table(str)
     -- striping all the values gone
-    local formattedStr = "return "
+    local formatted_str = "return "
     str = str:gsub("<1>", "")
     for line in str:gmatch("[^\r\n]+") do
         line = line:gsub("=.+$", "= '',")
-        formattedStr = formattedStr .. line .. "\n"
+        formatted_str = formatted_str .. line .. "\n"
     end
 
-    return loadstring(formattedStr)()
+    return loadstring(formatted_str)()
 end
 
 return M

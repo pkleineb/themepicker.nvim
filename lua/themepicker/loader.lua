@@ -4,70 +4,70 @@ local window = require("themepicker.window")
 
 local M = {}
 
-function M.applyColorScheme()
-    local pickerBuffer = utils.getBufferByName("Themepicker")
-    if #vim.api.nvim_buf_get_lines(pickerBuffer, 0, -1, false) == 1 and vim.api.nvim_buf_get_lines(pickerBuffer, 0, -1, false)[1] == "" then return end
+function M.apply_color_scheme()
+    local picker_buffer = utils.get_buffer_by_name("Themepicker")
+    if #vim.api.nvim_buf_get_lines(picker_buffer, 0, -1, false) == 1 and vim.api.nvim_buf_get_lines(picker_buffer, 0, -1, false)[1] == "" then return end
 
-    local schemePath, schemeName, moduleType = unpack(M.getColorSchemeUnderSelection())
+    local scheme_path, scheme_name, module_type = unpack(M.get_color_scheme_under_selection())
 
-    M.loadColorScheme(schemePath, schemeName, moduleType)
+    M.load_color_scheme(scheme_path, scheme_name, module_type)
 end
 
-function M.getColorSchemeUnderSelection()
-    local pickerBuffer = utils.getBufferByName("Themepicker")
-    if not pickerBuffer then error("Couldnt retrieve the right pickerBuffer. Try restarting vim") end
+function M.get_color_scheme_under_selection()
+    local picker_buffer = utils.get_buffer_by_name("Themepicker")
+    if not picker_buffer then error("Couldnt retrieve the right picker_buffer. Try restarting vim") end
 
-    local win = utils.getWinByBuffer(pickerBuffer)
+    local win = utils.get_window_by_buffer(picker_buffer)
     if not win then error("Couldnt retrieve the right window. Try restarting vim") end
 
-    local row = _G.Themepicker.currentHighlightLine
+    local row = _G.Themepicker.current_highlight_line
 
-    local theme = vim.api.nvim_buf_get_lines(pickerBuffer, 0, -1, false)[row + 1]
-    local escapedTheme = theme:gsub("%-", "%%-")
+    local theme = vim.api.nvim_buf_get_lines(picker_buffer, 0, -1, false)[row + 1]
+    local escaped_theme = theme:gsub("%-", "%%-")
 
-    local colorSchemePaths = themes.getColorSchemePaths()
+    local color_scheme_paths = themes.get_color_scheme_paths()
 
-    local colorSchemePath = ""
-    local moduleType = ""
-    for _, path in ipairs(colorSchemePaths) do
-        if path:match(".+" .. escapedTheme .. ".+") then
-            moduleType = path:match("([^/]+)$")
-            moduleType = moduleType:match("[^.]+%.(.+)$")
-            colorSchemePath = path:gsub("colors.*$", "colors/")
+    local color_scheme_path = ""
+    local module_type = ""
+    for _, path in ipairs(color_scheme_paths) do
+        if path:match(".+" .. escaped_theme .. ".+") then
+            module_type = path:match("([^/]+)$")
+            module_type = module_type:match("[^.]+%.(.+)$")
+            color_scheme_path = path:gsub("colors.*$", "colors/")
             break
         end
     end
 
-    return { colorSchemePath, theme, moduleType }
+    return { color_scheme_path, theme, module_type }
 end
 
-function M.loadColorScheme(modulePath, moduleName, moduleType)
+function M.load_color_scheme(module_path, module_name, module_type)
     local pattern = "(/[^/]*)(/[^/]*)$"
-    local pluginPath = modulePath:gsub(pattern, "")
-    vim.opt.rtp:append(pluginPath)
+    local plugin_path = module_path:gsub(pattern, "")
+    vim.opt.rtp:append(plugin_path)
 
-    local beforeLoadPackages = utils.parseStringTable(vim.inspect(package.loaded, { depth = 1 }))
+    local before_load_packages = utils.parse_string_table(vim.inspect(package.loaded, { depth = 1 }))
 
-    vim.cmd("source " .. modulePath .. moduleName .. "." .. moduleType)
-    vim.cmd("colorscheme " .. moduleName)
+    vim.cmd("source " .. module_path .. module_name .. "." .. module_type)
+    vim.cmd("colorscheme " .. module_name)
 
-    local afterLoadPackages = utils.parseStringTable(vim.inspect(package.loaded, { depth = 1 }))
+    local after_load_packages = utils.parse_string_table(vim.inspect(package.loaded, { depth = 1 }))
 
-    local newLoadedPlugins = utils.diffTableKeys(beforeLoadPackages, afterLoadPackages)
+    local new_loaded_plugins = utils.diff_table_keys(before_load_packages, after_load_packages)
 
-    if vim.g.activeTheme ~= nil then
-        vim.opt.rtp:remove(vim.g.activeTheme.pluginPath)
-        for _, plugin in ipairs(vim.g.activeTheme.loadedPlugins) do
+    if vim.g.active_theme ~= nil then
+        vim.opt.rtp:remove(vim.g.active_theme.plugin_path)
+        for _, plugin in ipairs(vim.g.active_theme.loaded_plugins) do
             package.loaded[plugin] = nil
         end
     end
 
-    vim.g.activeTheme = {
-        pluginPath = pluginPath,
-        loadedPlugins = newLoadedPlugins,
+    vim.g.active_theme = {
+        plugin_path = plugin_path,
+        loaded_plugins = new_loaded_plugins,
     }
 
-    window.setHighlight(_G.Themepicker.currentHighlightLine)
+    window.set_highlight(_G.Themepicker.current_highlight_line)
 end
 
 return M
