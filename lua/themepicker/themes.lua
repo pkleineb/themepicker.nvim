@@ -2,26 +2,6 @@ local config = require("themepicker.config")
 
 local M = {}
 
-function M.get_color_scheme_paths()
-    local data_path = config.config.themes.theme_dir
-    local color_scheme_path_string = ""
-    if type(data_path) == "table" then
-        color_scheme_path_string = ""
-        for _, path in ipairs(data_path) do
-            color_scheme_path_string = color_scheme_path_string .. "\n" .. vim.fn.glob(path .. "**/colors/*.lua") .. "\n" .. vim.fn.glob(path .. "**/colors/*.vim")
-        end
-    else
-        color_scheme_path_string = vim.fn.glob(data_path .. "**/colors/*.lua") .. "\n" .. vim.fn.glob(data_path .. "**/colors/*.vim")
-    end
-
-    local color_scheme_paths = {}
-    for path in color_scheme_path_string:gmatch("([^\n]*)\n?") do
-        table.insert(color_scheme_paths, path)
-    end
-
-    return color_scheme_paths
-end
-
 function M.get_themes()
     local color_scheme_paths = M.get_color_scheme_paths()
 
@@ -38,5 +18,75 @@ function M.get_themes()
 
     return themes
 end
+
+function M.get_color_scheme_paths()
+    local data_path = config.config.themes.theme_dir
+    local color_scheme_paths = {}
+
+    if type(data_path) == "table" then
+        for _, path in ipairs(data_path) do
+            vim.list_extend(color_scheme_paths, M.process_path(path))
+        end
+    else
+        color_scheme_paths = M.process_path(data_path)
+    end
+
+    return color_scheme_paths
+end
+
+function M.process_path(path)
+    local plugin_paths = vim.fs.find(
+        {".git"},
+        {limit = math.huge, type = "directory", path = path}
+    )
+    local color_scheme_paths = {}
+    for _, path in ipairs(plugin_paths) do
+        -- grabbing the parent_dir to look through the plugin dir and to have a reference to the base path
+        -- of the colorscheme
+        local parent_dir = vim.fs.dirname(path)
+
+        -- grabbing all the colorscheme files(lua and vim files that are in a /colors/ directory)
+        -- paths get normalized by find
+        local color_paths = vim.fs.find(function(name, path)
+            return name:match(".*%.[luavim]") and path:match("[/\\\\]colors$")
+        end, {limit = math.huge, type = "file", path = parent_dir}
+        )
+
+        if #color_paths == 0 then goto continue end
+
+        local escaped_parent_dir = parent_dir:gsub("([%^%$%(%)%%%.%[%]%*%+%-%?])", "%%%1")
+        local pattern = escaped_parent_dir .. "(.*)$"
+
+        local path_buffer = {}
+        local min_depth = math.huge
+        for _, color_scheme in ipairs(color_paths) do
+            local color_scheme_src_path = color_scheme:match(pattern)
+            local depth = M.get_path_depth(color_scheme_src_path)
+
+            if depth < min_depth then
+                min_depth = depth
+                -- clear path_buffer since all paths put in there before must have been deeper then this
+                -- path
+                path_buffer = {}
+            end
+
+            -- this should also trigger when a new min_depth got found because we set min_depth to depth
+            if depth == min_depth then
+                table.insert(path_buffer, color_scheme)
+            end
+        end
+
+        vim.list_extend(color_scheme_paths, path_buffer)
+
+        ::continue::
+    end
+
+    return color_scheme_paths
+end
+
+function M.get_path_depth(path)
+    return select(2, path:gsub("/", "")) - 1
+end
+
 
 return M
