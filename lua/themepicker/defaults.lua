@@ -66,7 +66,11 @@ return {
         -- dir where colorschemes get downloaded to from plugin manager or where to look for colorschemes
         -- scans all child dirs as well
         -- either string or table of strings
-        theme_dir = vim.fn.stdpath("data")
+        theme_dir = vim.fn.stdpath("data"),
+
+        -- exclude certain colorschemes that have these patterns in their path
+        -- table of strings
+        exclude_themes = {"example"},
     },
 
     window = {

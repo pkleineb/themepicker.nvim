@@ -47,10 +47,7 @@ function M.process_path(path)
 
         -- grabbing all the colorscheme files(lua and vim files that are in a /colors/ directory)
         -- paths get normalized by find
-        local color_paths = vim.fs.find(function(name, path)
-            return name:match(".*%.[luavim]") and path:match("[/\\\\]colors$")
-        end, {limit = math.huge, type = "file", path = parent_dir}
-        )
+        local color_paths = M.find_color_files(parent_dir)
 
         if #color_paths == 0 then goto continue end
 
@@ -82,6 +79,31 @@ function M.process_path(path)
     end
 
     return color_scheme_paths
+end
+
+function M.find_color_files(parent_dir)
+    return vim.fs.find(function(name, path)
+        local is_valid_file = name:match(".*%.lua$") or name:match(".*%.vim$")
+
+        local is_in_colors_dir = path:match("[/\\\\]colors$")
+
+        local is_excluded = M.is_excluded(path)
+
+        return is_valid_file and is_in_colors_dir and not is_excluded
+    end,
+    {limit = math.huge, type = "file", path = parent_dir}
+    )
+
+end
+
+function M.is_excluded(path)
+    for _, pattern in ipairs(config.config.themes.exclude_themes) do
+        if path:match(pattern) then
+            return true
+        end
+    end
+
+    return false
 end
 
 function M.get_path_depth(path)
