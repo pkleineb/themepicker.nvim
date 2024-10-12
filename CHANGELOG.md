@@ -10,6 +10,20 @@
 - changed to snake_case - (68551ba) - pkleineb
 
 - - -
+## 0.4.0 - 2024-10-12
+#### Bug Fixes
+- **(init)** when starting nvim devicons aren't colored without a wait - (6a24e08) - pkleineb
+- selecting same scheme twice would make the scheme not unloadable - (bf973fa) - pkleineb
+#### Documentation
+- updated docs for newest feature - (cbb53fb) - pkleineb
+- updated Changelog to version 0.3.0 - (ecf5b9d) - pkleineb
+#### Features
+- added keep colorscheme functionality - (04c546f) - pkleineb
+#### Miscellaneous Chores
+- **(version)** 0.4.1 - (552d9f1) - pkleineb
+
+- - -
+
 ## 0.4.1 - 2024-10-12
 #### Bug Fixes
 - selecting same scheme twice would make the scheme not unloadable - (bf973fa) - pkleineb
