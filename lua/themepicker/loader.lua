@@ -16,6 +16,7 @@
 local utils = require("themepicker.utils")
 local themes = require("themepicker.themes")
 local window = require("themepicker.window")
+local config = require("themepicker.config")
 
 local M = {}
 
@@ -26,6 +27,12 @@ function M.apply_color_scheme()
     local scheme_path, scheme_name, module_type = unpack(M.get_color_scheme_under_selection())
 
     M.load_color_scheme(scheme_path, scheme_name, module_type)
+
+    utils.save_table_to_file({
+        module_path = scheme_path,
+        module_name = scheme_name,
+        module_type = module_type,
+    }, config.config.themes.save_theme_dir .. "/color_scheme_data.lua")
 end
 
 function M.get_color_scheme_under_selection()
@@ -82,7 +89,9 @@ function M.load_color_scheme(module_path, module_name, module_type)
         loaded_plugins = new_loaded_plugins,
     }
 
-    window.set_highlight(_G.Themepicker.current_highlight_line)
+    if utils.get_buffer_by_name("Themepicker") then
+        window.set_highlight(_G.Themepicker.current_highlight_line)
+    end
 end
 
 return M

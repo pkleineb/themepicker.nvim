@@ -16,6 +16,7 @@
 local utils = require("themepicker.utils")
 local defaults = require("themepicker.defaults")
 local config = require("themepicker.config")
+local loader = require("themepicker.loader")
 
 local commands = require("themepicker.commands")
 
@@ -29,8 +30,15 @@ function M.setup(opts)
     config.setup(user_config)
 
     commands.setup()
+
+    vim.schedule(M.load_existing_color_scheme)
 end
 
-M.setup({})
+function M.load_existing_color_scheme()
+    local color_scheme_data = utils.load_table_from_file(config.config.themes.save_theme_dir .. "/color_scheme_data.lua")
+    if not color_scheme_data then return end
+
+    loader.load_color_scheme(color_scheme_data.module_path, color_scheme_data.module_name, color_scheme_data.module_type)
+end
 
 return M

@@ -75,4 +75,44 @@ function M.parse_string_table(str)
     return loadstring(formatted_str)()
 end
 
+function M.save_table_to_file(tbl, file_name)
+    local file = io.open(file_name, "w")
+    if not file then return false end
+
+    file:write(M.serialize_table(tbl))
+    file:close()
+
+    return true
+end
+
+function M.serialize_table(tbl)
+    local result = "return {"
+    for key, value in pairs(tbl) do
+        local serialized_key = type(key) == "number" and "[" .. key .. "]" or "['" .. tostring(key) .. "']"
+        if type(value) == "table" then
+            result = result .. serialized_key .. "=" .. M.serialize(value) .. ","
+        elseif type(value) == "string" then
+            result = result .. serialized_key .. "='" .. value:gsub("'", "\\'") .. "',"
+        else
+            result = result .. serialized_key .. "=" .. tostring(value) .. ","
+        end
+    end
+    return result .. "}"
+end
+
+function M.load_table_from_file(file_name)
+    local file = io.open(file_name, "r")
+    if not file then return nil end
+
+    local content = file:read("*all")
+    file:close()
+
+    local return_value = loadstring(content)
+    if return_value then
+        return return_value()
+    end
+
+    return nil
+end
+
 return M

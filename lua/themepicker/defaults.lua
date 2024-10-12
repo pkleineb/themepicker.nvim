@@ -86,6 +86,10 @@ return {
         -- exclude certain colorschemes that have these patterns in their path
         -- table of strings
         exclude_themes = {"example"},
+
+        -- where themepicker.nvim places the file to store colorscheme in between neovim sessions
+        -- path string
+        save_theme_dir = vim.fn.stdpath("data"),
     },
 
     window = {
