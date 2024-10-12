@@ -6,6 +6,8 @@ A super basic themepicker plugin that supports lazy loading colorschemes and a b
 ```lua
 return {
     "pkleineb/themepicker.nvim",
+    -- important to keep your colorscheme between nvim sessions
+    lazy = false,
     
     config = function
         require("themepicker").setup({opts})
@@ -90,6 +92,10 @@ The defaults are listed below:
         -- exclude certain colorschemes that have these patterns in their path
         -- table of strings
         exclude_themes = {"example"},
+
+        -- where themepicker.nvim places the file to store colorscheme in between neovim sessions
+        -- path string
+        save_theme_dir = vim.fn.stdpath("data"),
     },
 
     window = {
