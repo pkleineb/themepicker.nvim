@@ -10,6 +10,12 @@
 - changed to snake_case - (68551ba) - pkleineb
 
 - - -
+## 0.4.1 - 2024-10-12
+#### Bug Fixes
+- selecting same scheme twice would make the scheme not unloadable - (bf973fa) - pkleineb
+
+- - -
+
 
 ## 0.2.0 - 2024-10-11
 #### Bug Fixes
