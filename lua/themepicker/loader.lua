@@ -76,6 +76,7 @@ function M.load_color_scheme(module_path, module_name, module_type)
     local after_load_packages = utils.parse_string_table(vim.inspect(package.loaded, { depth = 1 }))
 
     local new_loaded_plugins = utils.diff_table_keys(before_load_packages, after_load_packages)
+    if new_loaded_plugins == {} then return end
 
     if vim.g.active_theme ~= nil then
         vim.opt.rtp:remove(vim.g.active_theme.plugin_path)
