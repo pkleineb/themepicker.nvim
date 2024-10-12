@@ -1,3 +1,18 @@
+-- Copyright (C) <2024>  <Paul Kleineberg>
+
+-- This program is free software: you can redistribute it and/or modify
+-- it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation, either version 3 of the License, or
+-- (at your option) any later version.
+
+-- This program is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+
+-- You should have received a copy of the GNU General Public License
+-- along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 local utils = require("themepicker.utils")
 local config = require("themepicker.config")
 local themes = require("themepicker.themes")
@@ -6,55 +21,55 @@ local autocmds = require("themepicker.autocommands")
 
 local M = {}
 
-function M.renderWindow()
-    M.setColorSchemes()
+function M.render_window()
+    M.set_color_schemes()
 
-    local pickerBuffer = M.createBuffer("Themepicker")
-    local mainOpts = {
+    local picker_buffer = M.create_buffer("Themepicker")
+    local main_opts = {
         filetype = "Themepicker",
         bufhidden = "wipe",
     }
-    M.configureBuffer(pickerBuffer, mainOpts)
-    M.addColorThemes(pickerBuffer)
+    M.configure_buffer(picker_buffer, main_opts)
+    M.add_color_themes(picker_buffer)
 
-    M.initHighlight()
+    M.init_highlight()
 
-    local searchBuffer = M.createBuffer("ThemepickerSearchbar")
-    local searchOpts = {}
-    M.configureBuffer(searchBuffer, searchOpts)
+    local search_buffer = M.create_buffer("ThemepickerSearchbar")
+    local search_opts = {}
+    M.configure_buffer(search_buffer, search_opts)
 
     local buffers = {
-        pickerBuffer = pickerBuffer,
-        searchBuffer = searchBuffer,
+        picker_buffer = picker_buffer,
+        search_buffer = search_buffer,
     }
-    local ui = M.createUI(buffers)
+    local ui = M.create_ui(buffers)
 
     for _, window in pairs(ui) do
         vim.api.nvim_win_set_option(window, 'wrap', false)
     end
 
-    M.styleSearchBar()
+    M.style_search_bar()
 
-    keybinds.bindKeys()
+    keybinds.bind_keys()
 
-    M.setAutoCommands()
+    M.set_auto_commands()
 
     vim.cmd("startinsert")
 
     -- stupid again just need to wait a lil to set highlight, since that can only be done after window is rendered ig
     vim.defer_fn(function()
-            M.setHighlight(0)
+            M.set_highlight(0)
         end,
         5
     )
 end
 
-function M.createBuffer(name)
+function M.create_buffer(name)
     local buffer = vim.api.nvim_create_buf(false, true)
 
-    local oldBuffer = utils.getBufferByName(name)
-    if oldBuffer then
-        vim.api.nvim_buf_delete(oldBuffer, { force = true })
+    local old_buffer = utils.get_buffer_by_name(name)
+    if old_buffer then
+        vim.api.nvim_buf_delete(old_buffer, { force = true })
     end
 
     vim.api.nvim_buf_set_name(buffer, name)
@@ -62,148 +77,148 @@ function M.createBuffer(name)
     return buffer
 end
 
-function M.configureBuffer(buffer, opts)
+function M.configure_buffer(buffer, opts)
     for key, value in pairs(opts) do
         vim.api.nvim_buf_set_option(buffer, key, value)
     end
 end
 
-function M.addColorThemes(buffer)
-    M.setColorSchemes()
+function M.add_color_themes(buffer)
+    M.set_color_schemes()
 
-    vim.api.nvim_buf_set_lines(buffer, 0, #M.colorSchemes, false, M.colorSchemes)
+    vim.api.nvim_buf_set_lines(buffer, 0, #M.color_schemes, false, M.color_schemes)
 end
 
-function M.setColorSchemes()
-    M.colorSchemes = themes.getThemes()
+function M.set_color_schemes()
+    M.color_schemes = themes.get_themes()
 end
 
-function M.createUI(buffers)
-    local pickerBuffer = buffers.pickerBuffer
-    local searchBuffer = buffers.searchBuffer
+function M.create_ui(buffers)
+    local picker_buffer = buffers.picker_buffer
+    local search_buffer = buffers.search_buffer
 
-    local nvimWidth = vim.o.columns
-    local nvimHeight = vim.o.lines
+    local nvim_width = vim.o.columns
+    local nvim_height = vim.o.lines
 
-    local totalWidth = math.floor(nvimWidth * config.config.window.total_width)
-    local totalHeight = math.floor(nvimHeight * config.config.window.total_height)
+    local total_width = math.floor(nvim_width * config.config.window.total_width)
+    local total_height = math.floor(nvim_height * config.config.window.total_height)
 
-    local totalWindowX = math.floor(nvimWidth / 2 - totalWidth / 2)
-    local totalWindowY = math.floor(nvimHeight / 2 - totalHeight / 2)
+    local total_window_x = math.floor(nvim_width / 2 - total_width / 2)
+    local total_window_y = math.floor(nvim_height / 2 - total_height / 2)
 
-    local searchOpts = {
-        width = totalWidth,
-        height = (config.config.window.searchbar.height < 1) and math.floor(totalHeight * config.config.window.searchbar.height) or math.floor(config.config.window.searchbar.height),
-        col = totalWindowX,
-        row = totalWindowY,
+    local search_opts = {
+        width = total_width,
+        height = (config.config.window.searchbar.height < 1) and math.floor(total_height * config.config.window.searchbar.height) or math.floor(config.config.window.searchbar.height),
+        col = total_window_x,
+        row = total_window_y,
         focusable = true,
     }
 
-    local pickerWindowOpts = {
-        width = totalWidth,
-        height = totalHeight - searchOpts.height,
-        col = totalWindowX,
-        row = totalWindowY + searchOpts.height + config.config.window.searchbar.padding + 2,
+    local picker_window_opts = {
+        width = total_width,
+        height = total_height - search_opts.height,
+        col = total_window_x,
+        row = total_window_y + search_opts.height + config.config.window.searchbar.padding + 2,
         --focusable = false,
     }
 
-    local pickerWindow = M.createWindow(pickerBuffer, pickerWindowOpts)
-    local searchWindow = M.createWindow(searchBuffer, searchOpts)
+    local picker_window = M.create_window(picker_buffer, picker_window_opts)
+    local search_window = M.create_window(search_buffer, search_opts)
 
     return {
-        searchWindow = searchWindow,
-        pickerWindow = pickerWindow,
+        search_window = search_window,
+        picker_window = picker_window,
     }
 end
 
-function M.createWindow(buffer, opts)
-    local windowOpts = {
+function M.create_window(buffer, opts)
+    local window_opts = {
         relative = config.config.window.relative,
         style = config.config.window.style,
         border = config.config.window.border,
     }
 
-    local mergedOpts = utils.mergeConfig(windowOpts, opts)
+    local merged_opts = utils.merge_config(window_opts, opts)
 
-    local window = vim.api.nvim_open_win(buffer, true, mergedOpts)
+    local window = vim.api.nvim_open_win(buffer, true, merged_opts)
 
     return window
 end
 
-function M.styleSearchBar()
-    local searchBuffer = utils.getBufferByName("ThemepickerSearchbar")
+function M.style_search_bar()
+    local search_buffer = utils.get_buffer_by_name("ThemepickerSearchbar")
     local decorator = " " .. config.config.window.searchbar.search_decorator .. " "
 
-    vim.api.nvim_buf_set_lines(searchBuffer, 0, -1, false, {decorator})
+    vim.api.nvim_buf_set_lines(search_buffer, 0, -1, false, {decorator})
 end
 
-function M.closeWindow()
-    local pickerBuffer = utils.getBufferByName("Themepicker")
-    local searchBuffer = utils.getBufferByName("ThemepickerSearchbar")
+function M.close_window()
+    local picker_buffer = utils.get_buffer_by_name("Themepicker")
+    local search_buffer = utils.get_buffer_by_name("ThemepickerSearchbar")
 
-    local pickerWindow = utils.getWinByBuffer(pickerBuffer)
-    local searchWindow = utils.getWinByBuffer(searchBuffer)
+    local picker_window = utils.get_window_by_buffer(picker_buffer)
+    local search_window = utils.get_window_by_buffer(search_buffer)
 
-    vim.api.nvim_win_close(pickerWindow, true)
-    vim.api.nvim_win_close(searchWindow, true)
+    vim.api.nvim_win_close(picker_window, true)
+    vim.api.nvim_win_close(search_window, true)
     vim.api.nvim_clear_autocmds({ group = vim.api.nvim_create_augroup("Themepicker", { clear = false }) })
     vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", false)
 end
 
-function M.handleInsert()
-    local searchBuffer = utils.getBufferByName("ThemepickerSearchbar")
-    local searchWindow = utils.getWinByBuffer(searchBuffer)
+function M.handle_insert()
+    local search_buffer = utils.get_buffer_by_name("ThemepickerSearchbar")
+    local search_window = utils.get_window_by_buffer(search_buffer)
 
-    if vim.api.nvim_win_get_cursor(searchWindow)[2] > 4 then return end
+    if vim.api.nvim_win_get_cursor(search_window)[2] > 4 then return end
 
     -- have to delay this since insert mode will place at the position where insert was pressed and we need to set the pos later
     vim.defer_fn(function() 
-            vim.api.nvim_win_set_cursor(searchWindow, {1, 4})
+            vim.api.nvim_win_set_cursor(search_window, {1, 4})
         end,
         5
     )
 end
 
-function M.handleInput()
-    local searchBuffer = utils.getBufferByName("ThemepickerSearchbar")
+function M.handle_input()
+    local search_buffer = utils.get_buffer_by_name("ThemepickerSearchbar")
 
-    if not searchBuffer then
+    if not search_buffer then
         -- instead of returning might need to unbind
         return
     end
 
-    local searchContent = vim.api.nvim_buf_get_lines(searchBuffer, 0, -1, false)
+    local search_content = vim.api.nvim_buf_get_lines(search_buffer, 0, -1, false)
 
-    if #searchContent > -1 then
-        vim.api.nvim_buf_set_lines(searchBuffer, 0, -1, true, {searchContent[1]})
+    if #search_content > -1 then
+        vim.api.nvim_buf_set_lines(search_buffer, 0, -1, true, {search_content[1]})
     end
 
-    if #searchContent[1] < 4 then
-        M.styleSearchBar()
-        local nCharacters = #vim.api.nvim_buf_get_lines(searchBuffer, 0, -1, false)[1]
-        vim.api.nvim_win_set_cursor(0, {1, nCharacters})
+    if #search_content[1] < 4 then
+        M.style_search_bar()
+        local num_characters = #vim.api.nvim_buf_get_lines(search_buffer, 0, -1, false)[1]
+        vim.api.nvim_win_set_cursor(0, {1, num_characters})
     end
 
-    M.searchForTheme(searchContent[1])
+    M.search_for_theme(search_content[1])
 
-    M.setHighlight(0)
+    M.set_highlight(0)
 end
 
-function M.searchForTheme(searchContent)
-    local pickerBuffer = utils.getBufferByName("Themepicker")
-    local formattedSearch = searchContent:sub(4)
+function M.search_for_theme(search_content)
+    local picker_buffer = utils.get_buffer_by_name("Themepicker")
+    local formatted_search = search_content:sub(4)
 
     local matches = {}
-    for _, theme in ipairs(M.colorSchemes) do
-        if M.fuzzyMatch(formattedSearch, theme) then
+    for _, theme in ipairs(M.color_schemes) do
+        if M.fuzzy_match(formatted_search, theme) then
             table.insert(matches, theme)
         end
     end
 
-    vim.api.nvim_buf_set_lines(pickerBuffer, 0, #vim.api.nvim_buf_get_lines(pickerBuffer, 0, -1, false), true, matches)
+    vim.api.nvim_buf_set_lines(picker_buffer, 0, #vim.api.nvim_buf_get_lines(picker_buffer, 0, -1, false), true, matches)
 end
 
-function M.fuzzyMatch(query, str)
+function M.fuzzy_match(query, str)
     local query_len = #query
     local str_len = #str
     local query_index = 1
@@ -219,59 +234,59 @@ function M.fuzzyMatch(query, str)
     return query_index > query_len
 end
 
-function M.setAutoCommands()
-    local windowAutocommands = {
+function M.set_auto_commands()
+    local window_auto_commands = {
         {
             event = "TextChangedI",
             config = {
-                buffer = utils.getBufferByName("ThemepickerSearchbar"),
-                callback = M.handleInput,
+                buffer = utils.get_buffer_by_name("ThemepickerSearchbar"),
+                callback = M.handle_input,
             },
         },
         {
             event = "TextChanged",
             config = {
-                buffer = utils.getBufferByName("ThemepickerSearchbar"),
-                callback = M.handleInput,
+                buffer = utils.get_buffer_by_name("ThemepickerSearchbar"),
+                callback = M.handle_input,
             },
         },
         {
             event = "InsertEnter",
             config = {
-                buffer = utils.getBufferByName("ThemepickerSearchbar"),
-                callback = M.handleInsert,
+                buffer = utils.get_buffer_by_name("ThemepickerSearchbar"),
+                callback = M.handle_insert,
             }
         },
     }
 
-    autocmds.autoCommands = vim.tbl_deep_extend("force", autocmds.autoCommands, windowAutocommands)
-    autocmds.setAutoCommands()
+    autocmds.auto_commands = vim.tbl_deep_extend("force", autocmds.auto_commands, window_auto_commands)
+    autocmds.set_auto_commands()
 end
 
-function M.initHighlight()
-    _G.Themepicker.currentHighlightLine = -1
-    _G.Themepicker.namespace = utils.getNamespaceByNameOrCreateNew("Themepicker")
+function M.init_highlight()
+    _G.Themepicker.current_highlight_line = -1
+    _G.Themepicker.namespace = utils.get_namespace_by_name_or_new("Themepicker")
 end
 
-function M.setHighlight(line)
-    local pickerBuffer = utils.getBufferByName("Themepicker")
+function M.set_highlight(line)
+    local picker_buffer = utils.get_buffer_by_name("Themepicker")
 
-    if line >= #vim.api.nvim_buf_get_lines(pickerBuffer, 0, -1, false) then
+    if line >= #vim.api.nvim_buf_get_lines(picker_buffer, 0, -1, false) then
         line = 0
     end
 
     if line < 0 then
-        line = #vim.api.nvim_buf_get_lines(pickerBuffer, 0, -1, false) - 1
+        line = #vim.api.nvim_buf_get_lines(picker_buffer, 0, -1, false) - 1
     end
 
     local namespace = _G.Themepicker.namespace
 
-    vim.api.nvim_buf_clear_namespace(pickerBuffer, namespace, 0, -1)
+    vim.api.nvim_buf_clear_namespace(picker_buffer, namespace, 0, -1)
 
-    M.createHighlightGroups()
+    M.create_highlight_groups()
 
     vim.api.nvim_buf_set_extmark(
-        pickerBuffer,
+        picker_buffer,
         namespace,
         line,
         0,
@@ -281,23 +296,23 @@ function M.setHighlight(line)
         }
     )
 
-    _G.Themepicker.currentHighlightLine = line
+    _G.Themepicker.current_highlight_line = line
 end
 
-function M.createHighlightGroups()
-    local lightArgs = (type(config.config.window.highlights.light.additional_args) == "string") and config.config.window.highlights.light.additional_args or table.concat(config.config.window.highlights.light.additional_args, " ")
-    local darkArgs = (type(config.config.window.highlights.dark.additional_args) == "string") and config.config.window.highlights.dark.additional_args or table.concat(config.config.window.highlights.dark.additional_args, " ")
+function M.create_highlight_groups()
+    local light_args = (type(config.config.window.highlights.light.additional_args) == "string") and config.config.window.highlights.light.additional_args or table.concat(config.config.window.highlights.light.additional_args, " ")
+    local dark_args = (type(config.config.window.highlights.dark.additional_args) == "string") and config.config.window.highlights.dark.additional_args or table.concat(config.config.window.highlights.dark.additional_args, " ")
 
-    vim.cmd([[highlight ThemepickerLight guifg=]] .. config.config.window.highlights.light.guifg .. [[ guibg=]] .. config.config.window.highlights.light.guibg .. [[ gui=bold]] .. lightArgs)
-    vim.cmd([[highlight ThemepickerDark guifg=]] .. config.config.window.highlights.dark.guifg .. [[ guibg=]] .. config.config.window.highlights.dark.guibg .. [[ gui=bold]] .. darkArgs)
+    vim.cmd([[highlight ThemepickerLight guifg=]] .. config.config.window.highlights.light.guifg .. [[ guibg=]] .. config.config.window.highlights.light.guibg .. [[ gui=bold]] .. light_args)
+    vim.cmd([[highlight ThemepickerDark guifg=]] .. config.config.window.highlights.dark.guifg .. [[ guibg=]] .. config.config.window.highlights.dark.guibg .. [[ gui=bold]] .. dark_args)
 end
 
-function M.nextSelection()
-    M.setHighlight(_G.Themepicker.currentHighlightLine + 1)
+function M.next_selection()
+    M.set_highlight(_G.Themepicker.current_highlight_line + 1)
 end
 
-function M.previousSelection()
-    M.setHighlight(_G.Themepicker.currentHighlightLine - 1)
+function M.previous_selection()
+    M.set_highlight(_G.Themepicker.current_highlight_line - 1)
 end
 
 return M

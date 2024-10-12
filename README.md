@@ -6,6 +6,8 @@ A super basic themepicker plugin that supports lazy loading colorschemes and a b
 ```lua
 return {
     "pkleineb/themepicker.nvim",
+    -- important to keep your colorscheme between nvim sessions
+    lazy = false,
     
     config = function
         require("themepicker").setup({opts})
@@ -26,7 +28,7 @@ The defaults are listed below:
                 "n",
             },
             keys = "<CR>",
-            command = "<cmd>lua require'themepicker.loader'.applyColorScheme()<CR>",
+            command = "<cmd>lua require'themepicker.loader'.apply_color_scheme()<CR>",
             opts = {
                 silent = true,
                 noremap = true,
@@ -36,7 +38,7 @@ The defaults are listed below:
             -- can be table or string of valid vim modes
             mode = "i",
             keys = "<C-c>",
-            command = "<cmd>lua require'themepicker.window'.closeWindow()<CR>",
+            command = "<cmd>lua require'themepicker.window'.close_window()<CR>",
             opts = {
                 silent = true,
                 noremap = true,
@@ -46,7 +48,7 @@ The defaults are listed below:
             -- can be table or string of valid vim modes
             mode = "n",
             keys = "<Esc>",
-            command = "<cmd>lua require'themepicker.window'.closeWindow()<CR>",
+            command = "<cmd>lua require'themepicker.window'.close_window()<CR>",
             opts = {
                 silent = true,
                 noremap = true,
@@ -59,7 +61,7 @@ The defaults are listed below:
                 "n",
             },
             keys = "<Tab>",
-            command = "<cmd> lua require'themepicker.window'.nextSelection()<CR>",
+            command = "<cmd> lua require'themepicker.window'.next_selection()<CR>",
             opts = {
                 silent = true,
                 noremap = true,
@@ -72,7 +74,7 @@ The defaults are listed below:
                 "n",
             },
             keys = "<S-Tab>",
-            command = "<cmd> lua require'themepicker.window'.previousSelection()<CR>",
+            command = "<cmd> lua require'themepicker.window'.previous_selection()<CR>",
             opts = {
                 silent = true,
                 noremap = true,
@@ -86,6 +88,14 @@ The defaults are listed below:
         -- scans all child dirs as well
         -- either string or table of strings
         theme_dir = vim.fn.stdpath("data")
+
+        -- exclude certain colorschemes that have these patterns in their path
+        -- table of strings
+        exclude_themes = {"example"},
+
+        -- where themepicker.nvim places the file to store colorscheme in between neovim sessions
+        -- path string
+        save_theme_dir = vim.fn.stdpath("data"),
     },
 
     window = {
