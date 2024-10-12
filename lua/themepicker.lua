@@ -31,7 +31,14 @@ function M.setup(opts)
 
     commands.setup()
 
-    vim.schedule(M.load_existing_color_scheme)
+    vim.api.nvim_create_autocmd("VimEnter", {
+        callback = function()
+            vim.defer_fn(function()
+                M.load_existing_color_scheme()
+            end, 5)
+        end,
+        once = true,
+    })
 end
 
 function M.load_existing_color_scheme()
