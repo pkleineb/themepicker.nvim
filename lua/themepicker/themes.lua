@@ -125,5 +125,4 @@ function M.get_path_depth(path)
     return select(2, path:gsub("/", "")) - 1
 end
 
-
 return M

@@ -48,4 +48,6 @@ function M.load_existing_color_scheme()
     loader.load_color_scheme(color_scheme_data.module_path, color_scheme_data.module_name, color_scheme_data.module_type)
 end
 
+M.setup({})
+
 return M
