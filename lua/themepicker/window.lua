@@ -48,13 +48,13 @@ function M.render_window()
         vim.api.nvim_win_set_option(window, 'wrap', false)
     end
 
-    M.style_search_bar()
-
     keybinds.bind_keys()
 
     M.set_auto_commands()
 
     vim.cmd("startinsert")
+
+    M.style_search_bar("")
 
     -- stupid again just need to wait a lil to set highlight, since that can only be done after window is rendered ig
     vim.defer_fn(function()
@@ -145,11 +145,12 @@ function M.create_window(buffer, opts)
     return window
 end
 
-function M.style_search_bar()
+function M.style_search_bar(content)
     local search_buffer = utils.get_buffer_by_name("ThemepickerSearchbar")
     local decorator = " " .. config.config.window.searchbar.search_decorator .. " "
+    local escaped_content = content:gsub(decorator, "")
 
-    vim.api.nvim_buf_set_lines(search_buffer, 0, -1, false, {decorator})
+    vim.api.nvim_buf_set_lines(search_buffer, 0, -1, false, {#content > 3 and decorator .. escaped_content or decorator})
 end
 
 function M.close_window()
@@ -172,7 +173,7 @@ function M.handle_insert()
     if vim.api.nvim_win_get_cursor(search_window)[2] > 4 then return end
 
     -- have to delay this since insert mode will place at the position where insert was pressed and we need to set the pos later
-    vim.defer_fn(function() 
+    vim.defer_fn(function()
             vim.api.nvim_win_set_cursor(search_window, {1, 4})
         end,
         5
@@ -193,11 +194,9 @@ function M.handle_input()
         vim.api.nvim_buf_set_lines(search_buffer, 0, -1, true, {search_content[1]})
     end
 
-    if #search_content[1] < 4 then
-        M.style_search_bar()
-        local num_characters = #vim.api.nvim_buf_get_lines(search_buffer, 0, -1, false)[1]
-        vim.api.nvim_win_set_cursor(0, {1, num_characters})
-    end
+    M.style_search_bar(search_content[1])
+    local num_characters = #vim.api.nvim_buf_get_lines(search_buffer, 0, -1, false)[1]
+    vim.api.nvim_win_set_cursor(0, {1, num_characters})
 
     M.search_for_theme(search_content[1])
 
