@@ -10,6 +10,13 @@
 - changed to snake_case - (68551ba) - pkleineb
 
 - - -
+## 0.4.1 - 2024-10-18
+#### Bug Fixes
+- **(initialising)** 5 is too low of a timeout but increasing might make the themeadding less responsive >:[ - (f263184) - pkleineb
+- **(search_bar)** fixed error that occured when instantly hitting a key after window creation would place that key at the first character in the line - (b796b53) - pkleineb
+
+- - -
+
 ## 0.4.0 - 2024-10-12
 #### Bug Fixes
 - **(init)** when starting nvim devicons aren't colored without a wait - (6a24e08) - pkleineb
