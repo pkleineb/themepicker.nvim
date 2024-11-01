@@ -115,4 +115,44 @@ function M.load_table_from_file(file_name)
     return nil
 end
 
+function M.dedent_string(str_tbl)
+    local min_indent = math.huge
+    local result = M.convert_tabs_to_space(str_tbl)
+
+    for _, line in ipairs(result) do
+        local front_indent = line:match("^[ ]*")
+
+        if line:match("%S") == nil then goto continue end
+
+        if #front_indent < min_indent then
+            min_indent = #front_indent
+            if min_indent == 0 then
+                break
+            end
+        end
+
+        ::continue::
+    end
+
+    for index, line in ipairs(result) do
+        result[index] = M.remove_leading_characters(line, min_indent)
+    end
+
+    return result
+end
+
+function M.convert_tabs_to_space(str_tbl)
+    local result = {}
+    for _, line in ipairs(str_tbl) do
+        local converted_line = line:gsub("\t", string.rep(" ", 4))
+        table.insert(result, converted_line)
+    end
+
+    return result
+end
+
+function M.remove_leading_characters(str, num)
+    return str:sub(num)
+end
+
 return M
