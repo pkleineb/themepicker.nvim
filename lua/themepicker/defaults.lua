@@ -108,6 +108,37 @@ return {
         total_width = 0.8,
         total_height = 0.8,
 
+        preview = {
+            -- width of preview window as float from 0-1 as percentual size of total_width
+            width = 0.8,
+
+            text = [[
+                import library as not_malicious_code
+
+                class ProgramExample:
+                    def compute(a: Int, b: Str):
+                    """
+                    Computes two values together
+                    - a: Int, variable a
+                    - b: Str, variable b
+                    """
+                        try:
+                            return a + Int(b)
+
+                        except Error as e:
+                            not_malicious_code.run_code(e)
+
+                if __name__ == "__main__":
+                    a = 5
+                    b = 10
+
+                    example = ProgramExample
+                    example.compute(a, b)
+            ]],
+
+            text_filetype = "python",
+        },
+
         searchbar = {
             -- either int or float(0-1) 
             -- if int amount of lines 
@@ -135,6 +166,6 @@ return {
                 additional_args = {
                 }
             }
-        }
+        },
     },
 }
