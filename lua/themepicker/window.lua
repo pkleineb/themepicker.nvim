@@ -38,8 +38,17 @@ function M.render_window()
     local search_opts = {}
     M.configure_buffer(search_buffer, search_opts)
 
+    local preview_buffer = M.create_buffer("ThemepickerPreview")
+    local preview_opts = {
+        filetype = config.config.window.preview.text_filetype,
+    }
+    M.configure_buffer(preview_buffer, preview_opts)
+    local preview_content = utils.dedent_string(vim.split(config.config.window.preview.text, "\n", true))
+    vim.api.nvim_buf_set_lines(preview_buffer, 0, #preview_content, false, preview_content)
+
     local buffers = {
         picker_buffer = picker_buffer,
+        preview_buffer = preview_buffer,
         search_buffer = search_buffer,
     }
     local ui = M.create_ui(buffers)
@@ -95,6 +104,7 @@ end
 
 function M.create_ui(buffers)
     local picker_buffer = buffers.picker_buffer
+    local preview_buffer = buffers.preview_buffer
     local search_buffer = buffers.search_buffer
 
     local nvim_width = vim.o.columns
@@ -114,20 +124,32 @@ function M.create_ui(buffers)
         focusable = true,
     }
 
+    local preview_width = math.floor(total_width * config.config.window.preview.width)
+
     local picker_window_opts = {
-        width = total_width,
+        width = total_width - preview_width,
         height = total_height - search_opts.height,
         col = total_window_x,
         row = total_window_y + search_opts.height + config.config.window.searchbar.padding + 2,
-        --focusable = false,
+        focusable = false,
+    }
+
+    local preview_windwo_opts = {
+        width = preview_width - 2,
+        height = total_height - search_opts.height,
+        col = total_window_x + picker_window_opts.width + 2,
+        row = picker_window_opts.row,
+        focusable = false,
     }
 
     local picker_window = M.create_window(picker_buffer, picker_window_opts)
+    local preview_window = M.create_window(preview_buffer, preview_windwo_opts)
     local search_window = M.create_window(search_buffer, search_opts)
 
     return {
         search_window = search_window,
         picker_window = picker_window,
+        preview_window = preview_window,
     }
 end
 
@@ -155,12 +177,15 @@ end
 
 function M.close_window()
     local picker_buffer = utils.get_buffer_by_name("Themepicker")
+    local preview_buffer = utils.get_buffer_by_name("ThemepickerPreview")
     local search_buffer = utils.get_buffer_by_name("ThemepickerSearchbar")
 
     local picker_window = utils.get_window_by_buffer(picker_buffer)
+    local preview_window = utils.get_window_by_buffer(preview_buffer)
     local search_window = utils.get_window_by_buffer(search_buffer)
 
     vim.api.nvim_win_close(picker_window, true)
+    vim.api.nvim_win_close(preview_window, true)
     vim.api.nvim_win_close(search_window, true)
     vim.api.nvim_clear_autocmds({ group = vim.api.nvim_create_augroup("Themepicker", { clear = false }) })
     vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", false)
