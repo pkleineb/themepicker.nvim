@@ -16,6 +16,7 @@
 local utils = require("themepicker.utils")
 local config = require("themepicker.config")
 local themes = require("themepicker.themes")
+local loader = require("themepicker.loader")
 local keybinds = require("themepicker.keybinds")
 local autocmds = require("themepicker.autocommands")
 
@@ -305,6 +306,9 @@ function M.set_highlight(line)
 
     local namespace = _G.Themepicker.namespace
 
+    _G.Themepicker.current_highlight_line = line
+    M.preview_color_scheme()
+
     vim.api.nvim_buf_clear_namespace(picker_buffer, namespace, 0, -1)
 
     M.create_highlight_groups()
@@ -319,8 +323,6 @@ function M.set_highlight(line)
             hl_group = (vim.o.background == "dark") and "ThemepickerDark" or "ThemepickerLight",
         }
     )
-
-    _G.Themepicker.current_highlight_line = line
 end
 
 function M.create_highlight_groups()
@@ -329,6 +331,11 @@ function M.create_highlight_groups()
 
     vim.cmd([[highlight ThemepickerLight guifg=]] .. config.config.window.highlights.light.guifg .. [[ guibg=]] .. config.config.window.highlights.light.guibg .. [[ gui=bold]] .. light_args)
     vim.cmd([[highlight ThemepickerDark guifg=]] .. config.config.window.highlights.dark.guifg .. [[ guibg=]] .. config.config.window.highlights.dark.guibg .. [[ gui=bold]] .. dark_args)
+end
+
+function M.preview_color_scheme()
+    local preview_buffer = utils.get_buffer_by_name("ThemepickerPreview")
+    loader.apply_color_scheme_to_buffer(preview_buffer)
 end
 
 function M.next_selection()
