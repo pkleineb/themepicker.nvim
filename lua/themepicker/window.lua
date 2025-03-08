@@ -25,33 +25,16 @@ local M = {}
 function M.render_window()
     M.set_color_schemes()
 
-    local picker_buffer = M.create_buffer("Themepicker")
-    local main_opts = {
-        filetype = "Themepicker",
-        bufhidden = "wipe",
-    }
-    M.configure_buffer(picker_buffer, main_opts)
-    M.add_color_themes(picker_buffer)
-
-    M.init_highlight()
-
-    local search_buffer = M.create_buffer("ThemepickerSearchbar")
-    local search_opts = {}
-    M.configure_buffer(search_buffer, search_opts)
-
-    local preview_buffer = M.create_buffer("ThemepickerPreview")
-    local preview_opts = {
-        filetype = config.config.window.preview.text_filetype,
-    }
-    M.configure_buffer(preview_buffer, preview_opts)
-    local preview_content = utils.dedent_string(vim.split(config.config.window.preview.text, "\n", true))
-    vim.api.nvim_buf_set_lines(preview_buffer, 0, #preview_content, false, preview_content)
+    local search_buffer = M.create_search_buffer()
+    local picker_buffer = M.create_picker_buffer()
+    local preview_buffer = M.create_preview_buffer()
 
     local buffers = {
         picker_buffer = picker_buffer,
         preview_buffer = preview_buffer,
         search_buffer = search_buffer,
     }
+
     local ui = M.create_ui(buffers)
 
     for _, window in pairs(ui) do
@@ -72,6 +55,40 @@ function M.render_window()
         end,
         5
     )
+end
+
+function M.create_search_buffer()
+    local search_buffer = M.create_buffer("ThemepickerSearchbar")
+    local search_opts = {}
+    M.configure_buffer(search_buffer, search_opts)
+
+    return search_buffer
+end
+
+function M.create_picker_buffer()
+    local picker_buffer = M.create_buffer("Themepicker")
+    local main_opts = {
+        filetype = "Themepicker",
+        bufhidden = "wipe",
+    }
+    M.configure_buffer(picker_buffer, main_opts)
+    M.add_color_themes(picker_buffer)
+
+    M.init_highlight()
+
+    return picker_buffer
+end
+
+function M.create_preview_buffer()
+    local preview_buffer = M.create_buffer("ThemepickerPreview")
+    local preview_opts = {
+        filetype = config.config.window.preview.text_filetype,
+    }
+    M.configure_buffer(preview_buffer, preview_opts)
+    local preview_content = utils.dedent_string(vim.split(config.config.window.preview.text, "\n", true))
+    vim.api.nvim_buf_set_lines(preview_buffer, 0, #preview_content, false, preview_content)
+
+    return preview_buffer
 end
 
 function M.create_buffer(name)
@@ -117,9 +134,11 @@ function M.create_ui(buffers)
     local total_window_x = math.floor(nvim_width / 2 - total_width / 2)
     local total_window_y = math.floor(nvim_height / 2 - total_height / 2)
 
+    local search_height = (config.config.window.searchbar.height < 1) and math.floor(total_height * config.config.window.searchbar.height) or math.floor(config.config.window.searchbar.height)
+
     local search_opts = {
         width = total_width,
-        height = (config.config.window.searchbar.height < 1) and math.floor(total_height * config.config.window.searchbar.height) or math.floor(config.config.window.searchbar.height),
+        height = search_height,
         col = total_window_x,
         row = total_window_y,
         focusable = true,
