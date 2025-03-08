@@ -10,6 +10,33 @@
 - changed to snake_case - (68551ba) - pkleineb
 
 - - -
+## 0.5.0 - 2025-03-08
+#### Bug Fixes
+- **(loader)** on defautl colorscheme background of light colorschemes preview persisted outside of preview - (b6d9086) - pkleineb
+#### Documentation
+- added new default config to README - (169d1a3) - pkleineb
+#### Features
+- **(loader)** lazily loads colorschemes to preview - (9832910) - pkleineb
+- **(persistent_theme)** added timeout to config and made persitent theme able to being turned off - (4512a72) - pkleineb
+- **(window)** added scroll ability to picker window - (3373028) - pkleineb
+- **(window)** added a preview window and buffer - (7e239a4) - pkleineb
+#### Miscellaneous Chores
+- **(defaults)** fixed typo - (d56b072) - pkleineb
+- **(defaults)** changed defaults since I prefer a smaller window - (a500151) - pkleineb
+- **(defaults)** added default text for preview - (bfc2782) - pkleineb
+- **(loader)** beautified preview window, making it not change it's own border - (d947010) - pkleineb
+- **(utils)** QOL for the preview text so the indentation is looking good - (7950aa0) - pkleineb
+- **(window)** refactored some code might do some later but idk - (a82349d) - pkleineb
+
+- - -
+
+## 0.4.1 - 2024-10-18
+#### Bug Fixes
+- **(initialising)** 5 is too low of a timeout but increasing might make the themeadding less responsive >:[ - (f263184) - pkleineb
+- **(search_bar)** fixed error that occured when instantly hitting a key after window creation would place that key at the first character in the line - (b796b53) - pkleineb
+
+- - -
+
 ## 0.4.0 - 2024-10-12
 #### Bug Fixes
 - **(init)** when starting nvim devicons aren't colored without a wait - (6a24e08) - pkleineb

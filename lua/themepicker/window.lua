@@ -16,6 +16,7 @@
 local utils = require("themepicker.utils")
 local config = require("themepicker.config")
 local themes = require("themepicker.themes")
+local loader = require("themepicker.loader")
 local keybinds = require("themepicker.keybinds")
 local autocmds = require("themepicker.autocommands")
 
@@ -24,24 +25,16 @@ local M = {}
 function M.render_window()
     M.set_color_schemes()
 
-    local picker_buffer = M.create_buffer("Themepicker")
-    local main_opts = {
-        filetype = "Themepicker",
-        bufhidden = "wipe",
-    }
-    M.configure_buffer(picker_buffer, main_opts)
-    M.add_color_themes(picker_buffer)
-
-    M.init_highlight()
-
-    local search_buffer = M.create_buffer("ThemepickerSearchbar")
-    local search_opts = {}
-    M.configure_buffer(search_buffer, search_opts)
+    local search_buffer = M.create_search_buffer()
+    local picker_buffer = M.create_picker_buffer()
+    local preview_buffer = M.create_preview_buffer()
 
     local buffers = {
         picker_buffer = picker_buffer,
+        preview_buffer = preview_buffer,
         search_buffer = search_buffer,
     }
+
     local ui = M.create_ui(buffers)
 
     for _, window in pairs(ui) do
@@ -62,6 +55,40 @@ function M.render_window()
         end,
         5
     )
+end
+
+function M.create_search_buffer()
+    local search_buffer = M.create_buffer("ThemepickerSearchbar")
+    local search_opts = {}
+    M.configure_buffer(search_buffer, search_opts)
+
+    return search_buffer
+end
+
+function M.create_picker_buffer()
+    local picker_buffer = M.create_buffer("Themepicker")
+    local main_opts = {
+        filetype = "Themepicker",
+        bufhidden = "wipe",
+    }
+    M.configure_buffer(picker_buffer, main_opts)
+    M.add_color_themes(picker_buffer)
+
+    M.init_highlight()
+
+    return picker_buffer
+end
+
+function M.create_preview_buffer()
+    local preview_buffer = M.create_buffer("ThemepickerPreview")
+    local preview_opts = {
+        filetype = config.config.window.preview.text_filetype,
+    }
+    M.configure_buffer(preview_buffer, preview_opts)
+    local preview_content = utils.dedent_string(vim.split(config.config.window.preview.text, "\n", true))
+    vim.api.nvim_buf_set_lines(preview_buffer, 0, #preview_content, false, preview_content)
+
+    return preview_buffer
 end
 
 function M.create_buffer(name)
@@ -95,6 +122,7 @@ end
 
 function M.create_ui(buffers)
     local picker_buffer = buffers.picker_buffer
+    local preview_buffer = buffers.preview_buffer
     local search_buffer = buffers.search_buffer
 
     local nvim_width = vim.o.columns
@@ -106,28 +134,42 @@ function M.create_ui(buffers)
     local total_window_x = math.floor(nvim_width / 2 - total_width / 2)
     local total_window_y = math.floor(nvim_height / 2 - total_height / 2)
 
+    local search_height = (config.config.window.searchbar.height < 1) and math.floor(total_height * config.config.window.searchbar.height) or math.floor(config.config.window.searchbar.height)
+
     local search_opts = {
         width = total_width,
-        height = (config.config.window.searchbar.height < 1) and math.floor(total_height * config.config.window.searchbar.height) or math.floor(config.config.window.searchbar.height),
+        height = search_height,
         col = total_window_x,
         row = total_window_y,
         focusable = true,
     }
 
+    local preview_width = math.floor(total_width * config.config.window.preview.width)
+
     local picker_window_opts = {
-        width = total_width,
+        width = total_width - preview_width,
         height = total_height - search_opts.height,
         col = total_window_x,
         row = total_window_y + search_opts.height + config.config.window.searchbar.padding + 2,
-        --focusable = false,
+        focusable = false,
+    }
+
+    local preview_window_opts = {
+        width = preview_width - 2,
+        height = total_height - search_opts.height,
+        col = total_window_x + picker_window_opts.width + 2,
+        row = picker_window_opts.row,
+        focusable = false,
     }
 
     local picker_window = M.create_window(picker_buffer, picker_window_opts)
+    local preview_window = M.create_window(preview_buffer, preview_window_opts)
     local search_window = M.create_window(search_buffer, search_opts)
 
     return {
         search_window = search_window,
         picker_window = picker_window,
+        preview_window = preview_window,
     }
 end
 
@@ -155,12 +197,15 @@ end
 
 function M.close_window()
     local picker_buffer = utils.get_buffer_by_name("Themepicker")
+    local preview_buffer = utils.get_buffer_by_name("ThemepickerPreview")
     local search_buffer = utils.get_buffer_by_name("ThemepickerSearchbar")
 
     local picker_window = utils.get_window_by_buffer(picker_buffer)
+    local preview_window = utils.get_window_by_buffer(preview_buffer)
     local search_window = utils.get_window_by_buffer(search_buffer)
 
     vim.api.nvim_win_close(picker_window, true)
+    vim.api.nvim_win_close(preview_window, true)
     vim.api.nvim_win_close(search_window, true)
     vim.api.nvim_clear_autocmds({ group = vim.api.nvim_create_augroup("Themepicker", { clear = false }) })
     vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", false)
@@ -269,6 +314,7 @@ end
 
 function M.set_highlight(line)
     local picker_buffer = utils.get_buffer_by_name("Themepicker")
+    local picker_window = utils.get_window_by_buffer(picker_buffer)
 
     if line >= #vim.api.nvim_buf_get_lines(picker_buffer, 0, -1, false) then
         line = 0
@@ -279,6 +325,9 @@ function M.set_highlight(line)
     end
 
     local namespace = _G.Themepicker.namespace
+
+    _G.Themepicker.current_highlight_line = line
+    M.preview_color_scheme()
 
     vim.api.nvim_buf_clear_namespace(picker_buffer, namespace, 0, -1)
 
@@ -294,8 +343,7 @@ function M.set_highlight(line)
             hl_group = (vim.o.background == "dark") and "ThemepickerDark" or "ThemepickerLight",
         }
     )
-
-    _G.Themepicker.current_highlight_line = line
+    vim.api.nvim_win_set_cursor(picker_window, {line + 1, 0})
 end
 
 function M.create_highlight_groups()
@@ -304,6 +352,11 @@ function M.create_highlight_groups()
 
     vim.cmd([[highlight ThemepickerLight guifg=]] .. config.config.window.highlights.light.guifg .. [[ guibg=]] .. config.config.window.highlights.light.guibg .. [[ gui=bold]] .. light_args)
     vim.cmd([[highlight ThemepickerDark guifg=]] .. config.config.window.highlights.dark.guifg .. [[ guibg=]] .. config.config.window.highlights.dark.guibg .. [[ gui=bold]] .. dark_args)
+end
+
+function M.preview_color_scheme()
+    local preview_buffer = utils.get_buffer_by_name("ThemepickerPreview")
+    loader.apply_color_scheme_to_buffer(preview_buffer)
 end
 
 function M.next_selection()

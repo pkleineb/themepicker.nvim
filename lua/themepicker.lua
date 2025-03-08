@@ -31,15 +31,16 @@ function M.setup(opts)
 
     commands.setup()
 
-    -- 5 is too low of a timeout but this makes it quite laggy >:[
-    vim.api.nvim_create_autocmd("VimEnter", {
-        callback = function()
-            vim.defer_fn(function()
-                M.load_existing_color_scheme()
-            end, 10)
-        end,
-        once = true,
-    })
+    if config.config.themes.persistent_theme_enable then
+        vim.api.nvim_create_autocmd("VimEnter", {
+            callback = function()
+                vim.defer_fn(function()
+                    M.load_existing_color_scheme()
+                end, config.config.themes.persistent_theme_timeout)
+            end,
+            once = true,
+        })
+    end
 end
 
 function M.load_existing_color_scheme()

@@ -93,6 +93,14 @@ The defaults are listed below:
         -- table of strings
         exclude_themes = {"example"},
 
+        -- enables or disables persitent themes
+        -- bool
+        persistent_theme_enable = true,
+        
+        -- time in miliseconds when to reapply theme after startup in seconds(if this is 0 webdevicons on nvim tree wont get colored)
+        -- unsigned int in miliseconds
+        persistent_theme_timeout = 50,
+
         -- where themepicker.nvim places the file to store colorscheme in between neovim sessions
         -- path string
         save_theme_dir = vim.fn.stdpath("data"),
@@ -103,8 +111,8 @@ The defaults are listed below:
         relative = "editor",
         border = "rounded",
         -- width and height as float from 0-1 as percentual size of vim window
-        total_width = 0.8,
-        total_height = 0.8,
+        total_width = 0.4,
+        total_height = 0.4,
 
         searchbar = {
             -- either int or float(0-1) 
