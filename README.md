@@ -111,8 +111,8 @@ The defaults are listed below:
         relative = "editor",
         border = "rounded",
         -- width and height as float from 0-1 as percentual size of vim window
-        total_width = 0.8,
-        total_height = 0.8,
+        total_width = 0.4,
+        total_height = 0.4,
 
         searchbar = {
             -- either int or float(0-1) 
