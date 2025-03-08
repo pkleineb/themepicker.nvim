@@ -130,6 +130,8 @@ function M.load_color_scheme_to_window(module_path, module_name, module_type, wi
     local current_color_scheme = vim.g.colors_name
 
     local preview_window_namespace = utils.get_namespace_by_name_or_new("preview_buffer_namespace")
+    -- saving this since it looks goofy ah when the float border also changes
+    local current_float_border = vim.api.nvim_get_hl(0, {name = "FloatBorder"})
     local current_background = vim.o.background
 
     vim.cmd("source " .. module_path .. module_name .. "." .. module_type)
@@ -137,6 +139,7 @@ function M.load_color_scheme_to_window(module_path, module_name, module_type, wi
     local after_load_packages = utils.parse_string_table(vim.inspect(package.loaded, { depth = 1 }))
 
     local highlights = M.get_highlights()
+    highlights["FloatBorder"] = current_float_border
     M.set_highlights_for_namespace(preview_window_namespace, highlights)
 
     if current_color_scheme ~= nil then
