@@ -89,11 +89,11 @@ return {
 
         -- enables or disables persitent themes
         -- bool
-        persistent_theme_enable = true;
-        
+        persistent_theme_enable = true,
+
         -- time in miliseconds when to reapply theme after startup in seconds(if this is 0 webdevicons on nvim tree wont get colored)
         -- unsigned int in miliseconds
-        persistent_theme_timeout = 50;
+        persistent_theme_timeout = 50,
 
         -- where themepicker.nvim places the file to store colorscheme in between neovim sessions
         -- path string
