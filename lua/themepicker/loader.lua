@@ -130,6 +130,7 @@ function M.load_color_scheme_to_window(module_path, module_name, module_type, wi
     local current_color_scheme = vim.g.colors_name
 
     local preview_window_namespace = utils.get_namespace_by_name_or_new("preview_buffer_namespace")
+    local current_background = vim.o.background
 
     vim.cmd("source " .. module_path .. module_name .. "." .. module_type)
 
@@ -138,12 +139,17 @@ function M.load_color_scheme_to_window(module_path, module_name, module_type, wi
     local highlights = M.get_highlights()
     M.set_highlights_for_namespace(preview_window_namespace, highlights)
 
-    vim.cmd("colorscheme " .. current_color_scheme)
+    if current_color_scheme ~= nil then
+        vim.cmd("colorscheme " .. current_color_scheme)
+    else
+        vim.cmd("colorscheme default")
+    end
+    vim.o.background = current_background
 
     vim.api.nvim_win_set_hl_ns(window, preview_window_namespace)
 
     local new_loaded_plugins = utils.diff_table_keys(before_load_packages, after_load_packages)
-    if new_loaded_plugins == {} then return end
+    if vim.tbl_isempty(new_loaded_plugins) then return end
 
     if vim.g.preview_theme ~= nil then M.unload_plugin(vim.g.preview_theme) end
 
