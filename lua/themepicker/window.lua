@@ -135,7 +135,7 @@ function M.create_ui(buffers)
         focusable = false,
     }
 
-    local preview_windwo_opts = {
+    local preview_window_opts = {
         width = preview_width - 2,
         height = total_height - search_opts.height,
         col = total_window_x + picker_window_opts.width + 2,
@@ -144,7 +144,7 @@ function M.create_ui(buffers)
     }
 
     local picker_window = M.create_window(picker_buffer, picker_window_opts)
-    local preview_window = M.create_window(preview_buffer, preview_windwo_opts)
+    local preview_window = M.create_window(preview_buffer, preview_window_opts)
     local search_window = M.create_window(search_buffer, search_opts)
 
     return {
@@ -295,6 +295,7 @@ end
 
 function M.set_highlight(line)
     local picker_buffer = utils.get_buffer_by_name("Themepicker")
+    local picker_window = utils.get_window_by_buffer(picker_buffer)
 
     if line >= #vim.api.nvim_buf_get_lines(picker_buffer, 0, -1, false) then
         line = 0
@@ -323,6 +324,7 @@ function M.set_highlight(line)
             hl_group = (vim.o.background == "dark") and "ThemepickerDark" or "ThemepickerLight",
         }
     )
+    vim.api.nvim_win_set_cursor(picker_window, {line + 1, 0})
 end
 
 function M.create_highlight_groups()
